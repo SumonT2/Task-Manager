@@ -1,0 +1,105 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:taskmanager/ui/screens/forgot_password_pin_verification_screen.dart';
+import 'package:taskmanager/ui/screens/register_screen.dart';
+import 'package:taskmanager/ui/widgets/screen_background.dart';
+
+import '../utils/assets_path.dart';
+
+class ForgotPasswordVerifyEmailScreen extends StatefulWidget {
+  const ForgotPasswordVerifyEmailScreen({super.key});
+
+  @override
+  State<ForgotPasswordVerifyEmailScreen> createState() => _ForgotPasswordVerifyEmailScreenState();
+}
+
+class _ForgotPasswordVerifyEmailScreenState extends State<ForgotPasswordVerifyEmailScreen> {
+  final TextEditingController _emailTEController = TextEditingController();
+  final GlobalKey<FormState> _formKey= GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ScreenBackground(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 80),
+                Text(
+                  'Your Email Address',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 4,),
+                Text('A 6 digit verification pin will be sent to your email.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Colors.grey
+                ),),
+                const SizedBox(height: 24),
+                TextFormField(
+                  controller: _emailTEController,
+                  decoration: InputDecoration(hintText: 'Email'),
+                  textInputAction: TextInputAction.next,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _onTapSubmitButton,
+                  child: const Icon(Icons.arrow_circle_right_outlined),
+                ),
+                const SizedBox(height: 32),
+                Center(
+                  child: Column(
+                    children: [
+                      RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                          children: [
+                            TextSpan(text: "Have Account?"),
+                            TextSpan(
+                              text: "Sign In",
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              recognizer:
+                                  TapGestureRecognizer()
+                                    ..onTap = () {
+                                      _onTapSignInButton();
+                                    },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onTapSignInButton() {
+    Navigator.pop(context);
+  }
+  void _onTapSubmitButton() {
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgotPasswordPinVerificationScreen()));
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _emailTEController.dispose();
+    super.dispose();
+  }
+}
