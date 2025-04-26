@@ -1,7 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
 
@@ -9,12 +6,12 @@ class NetworkResponse {
   final bool isSuccess;
   final int statusCode;
   final Map<String, dynamic>? data;
-  final String? errorMessage;
+  final String errorMessage;
   NetworkResponse({
     required this.isSuccess,
     required this.statusCode,
     this.data,
-    this.errorMessage,
+    this.errorMessage='Something Went Wrong.',
   });
 }
 
@@ -33,12 +30,14 @@ class NetworkClient {
       );
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
-        return NetworkResponse(isSuccess: true, statusCode: decodedJson);
+        return NetworkResponse(isSuccess: true, statusCode:response.statusCode ,data: decodedJson);
       } else {
+        final decodedJson = jsonDecode(response.body);
+        String errorMessage = decodedJson['data'] ?? 'Something went wrong';
         return NetworkResponse(
-          isSuccess: false,
-          statusCode: response.statusCode,
-        );
+            isSuccess: false,
+            statusCode: response.statusCode,
+            errorMessage: errorMessage);
       }
     } catch (e) {
       _postRequestLog(url, -1, errorMessage: e.toString());
@@ -59,7 +58,7 @@ class NetworkClient {
       _preRequestLog(url, body: body);
       Response response = await post(
         uri,
-        headers: {'ContentType': 'Application/json'},
+        headers: {'Content-Type': 'Application/json'},
         body: jsonEncode(body),
       );
       _postRequestLog(
@@ -70,12 +69,14 @@ class NetworkClient {
       );
       if (response.statusCode == 200) {
         final decodedJson = jsonDecode(response.body);
-        return NetworkResponse(isSuccess: true, statusCode: decodedJson);
+        return NetworkResponse(isSuccess: true,statusCode:response.statusCode, data: decodedJson);
       } else {
+        final decodedJson = jsonDecode(response.body);
+        String errorMessage = decodedJson['data'] ?? 'Something went wrong';
         return NetworkResponse(
-          isSuccess: false,
-          statusCode: response.statusCode,
-        );
+            isSuccess: false,
+            statusCode: response.statusCode,
+            errorMessage: errorMessage);
       }
     } catch (e) {
       _postRequestLog(url, -1, errorMessage: e.toString());
