@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:taskmanager/ui/controllers/auth_controller.dart';
 import 'package:taskmanager/ui/screens/update_profile_screen.dart';
 
@@ -63,19 +64,12 @@ class TMAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   void _onTapProfileSection(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const UpdateProfileScreen()),
-    );
+    Get.to(() => const UpdateProfileScreen());
   }
 
   Future<void> _onTapLogOutButton(BuildContext context) async {
     await AuthController.clearUserData();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (pre) => false,
-    );
+    Get.offAll(() => const LoginScreen());
   }
 
   @override

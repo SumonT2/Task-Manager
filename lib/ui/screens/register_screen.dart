@@ -2,6 +2,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
+import 'package:taskmanager/ui/controllers/register_controller.dart';
 import 'package:taskmanager/ui/screens/register_screen.dart';
 import 'package:taskmanager/ui/widgets/screen_background.dart';
 
@@ -25,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _mobileTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _formKey= GlobalKey<FormState>();
-  bool _registrationInProgress = false;
+  final RegisterController _registerController = Get.find<RegisterController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -114,13 +116,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                Visibility(
-                  visible: _registrationInProgress == false,
-                  replacement: const CenteredCircularProgressIndicator(),
-                  child: ElevatedButton(
-                    onPressed: _onTapSubmitButton,
-                    child: const Icon(Icons.arrow_circle_right_outlined),
-                  ),
+                GetBuilder<RegisterController>(
+                  builder: (controller) {
+                    return Visibility(
+                      visible: controller.registrationInProgress == false,
+                      replacement: const CenteredCircularProgressIndicator(),
+                      child: ElevatedButton(
+                        onPressed: _onTapSubmitButton,
+                        child: const Icon(Icons.arrow_circle_right_outlined),
+                      ),
+                    );
+                  }
                 ),
                 const SizedBox(height: 32),
                 Center(
@@ -170,26 +176,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
   Future<void> _registerUser() async {
-    _registrationInProgress = true;
-    setState(() {});
-    Map<String, dynamic> requestBody = {
-      "email": _emailTEController.text.trim(),
-      "firstName": _firstNameTEController.text.trim(),
-      "lastName": _lastNameTEController.text.trim(),
-      "mobile": _mobileTEController.text.trim(),
-      "password": _passwordTEController.text
-    };
-    NetworkResponse response = await NetworkClient.postRequest(
-      url: Urls.registerUrl,
-      body: requestBody,
-    );
-    _registrationInProgress = false;
-    setState(() {});
-    if (response.isSuccess) {
+    final bool isSuccess = await _registerController.registerUser(_emailTEController.text.trim(),_firstNameTEController.text.trim(),_lastNameTEController.text.trim(),_mobileTEController.text.trim(),_passwordTEController.text);
+
+    if (isSuccess) {
       _clearTextFields();
       showSnackBarMessage(context, 'User registered successfully!');
     } else {
-      showSnackBarMessage(context, response.errorMessage, true);
+      showSnackBarMessage(context, _registerController.errorMessage!, true);
     }
   }
 
