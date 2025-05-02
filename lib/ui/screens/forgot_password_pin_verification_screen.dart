@@ -7,10 +7,14 @@ import 'package:taskmanager/ui/screens/reset_password_screen.dart';
 import 'package:taskmanager/ui/widgets/screen_background.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
+import '../../data/service/network_client.dart';
+import '../../data/utils/urls.dart';
 import '../utils/assets_path.dart';
+import '../widgets/snack_bar_message.dart';
 
 class ForgotPasswordPinVerificationScreen extends StatefulWidget {
-  const ForgotPasswordPinVerificationScreen({super.key});
+  final String email;
+  const ForgotPasswordPinVerificationScreen({super.key, required this.email});
 
   @override
   State<ForgotPasswordPinVerificationScreen> createState() => _ForgotPasswordPinVerificationScreenState();
@@ -19,6 +23,8 @@ class ForgotPasswordPinVerificationScreen extends StatefulWidget {
 class _ForgotPasswordPinVerificationScreenState extends State<ForgotPasswordPinVerificationScreen> {
   final TextEditingController _pinCodeTEController = TextEditingController();
   final GlobalKey<FormState> _formKey= GlobalKey<FormState>();
+   bool _pinVerificationInProgress = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,8 +117,26 @@ class _ForgotPasswordPinVerificationScreenState extends State<ForgotPasswordPinV
   }
 
   void _onTapSubmitButton() {
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordScreen()));
+    _verifyPin(widget.email,_pinCodeTEController.text, context);
   }
+
+  Future<void> _verifyPin(String email,String otp,BuildContext context) async {
+    _pinVerificationInProgress = true;
+    setState(() {});
+    final NetworkResponse response = await NetworkClient.getRequest(
+      url: Urls.recoverVerifyOtpUrl(email,otp),
+    );
+    _pinVerificationInProgress = false;
+    if (response.isSuccess) {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ResetPasswordScreen(email: widget.email,otp: otp,)));
+
+
+    } else {
+      setState(() {});
+      showSnackBarMessage(context, response.errorMessage, true);
+    }
+  }
+
 
   @override
   void dispose() {

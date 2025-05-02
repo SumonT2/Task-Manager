@@ -103,6 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 8),
 
                 TextFormField(
+                  obscureText: true,
                   controller: _passwordTEController,
                   decoration: InputDecoration(hintText: 'Password'),
                   validator: (String? value) {
